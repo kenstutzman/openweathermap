@@ -17,59 +17,63 @@ API_KEY = ""
 # upadting the URL
 URL = BASE_URL + "q=" + CITY + "&units=" + UNITS + "&appid=" + API_KEY
 # HTTP request
-response = requests.get(URL)
-# checking the status code of the request
-if response.status_code == 200:
-   # getting data in the json format
-   data = response.json()
-   print(data)
-   # getting the main dict block
-   main = data['main']
-   # getting temperature
-   temperature = main['temp']
-   # getting the humidity
-   humidity = main['humidity']
-   # getting the pressure
-   pressure = main['pressure']
-   # wind speed
-   wind = data['wind']
-   windspeed = wind['speed']
-   winddeg = wind['deg']
-
-   # weather report
-   report = data['weather']
-   print(f"{CITY:-^30}")
-   print(f"Temperature: {temperature}F")
-   print(f"Humidity: {humidity}")
-   print(f"Pressure: {pressure}")
-   print(f"Wind Speed: {windspeed}")
-   print(f"Wind Degrees: {winddeg}")
-   if winddeg < 45 or winddeg >= 315:
-     print("north")
-   if winddeg >= 45 and winddeg < 135:
-     print("east")
-   if winddeg >= 135 and winddeg < 225:
-     print("south")
-   if winddeg >= 225 and winddeg < 315:
-     print("west")
-   print(f"Weather Report: {report[0]['description']}")
-else:
-   # showing the error message
-   print("Error in the HTTP request")
 
 while True:
-    # Get temp forom vcgencmd in the format: "temp=XY.Z'C"
-    # and reduce to the format "XYZC" for display
-    temperature = Popen(["vcgencmd", "measure_temp"], stdout=PIPE)
-    temperature = temperature.stdout.read().decode('utf-8')
 
-    # Rempve "temp=" and the "." and "'" chars
-    temperature = temperature[5:].replace(".", "").replace("'", "").strip()
+   response = requests.get(URL)
+   # checking the status code of the request
+   if response.status_code == 200:
+      # getting data in the json format
+      data = response.json()
+      # print(data) # print the whole json object
+      # getting the main dict block
+      main = data['main']
+      # getting temperature
+      temperature = main['temp']
+      # getting the humidity
+      humidity = main['humidity']
+      # getting the pressure
+      pressure = main['pressure']
+      # wind speed
+      wind = data['wind']
+      windspeed = wind['speed']
+      winddeg = wind['deg']
+   
+      # weather report
+      report = data['weather']
+      print(f"{CITY:-^30}")
+      print(f"Temperature: {temperature}F")
+      print(f"Humidity: {humidity}")
+      print(f"Pressure: {pressure}")
+      print(f"Wind Speed: {windspeed}")
+      print(f"Wind Degrees: {winddeg}")
+      if winddeg < 45 or winddeg >= 315:
+        print("north")
+      if winddeg >= 45 and winddeg < 135:
+        print("east")
+      if winddeg >= 135 and winddeg < 225:
+        print("south")
+      if winddeg >= 225 and winddeg < 315:
+        print("west")
+      print(f"Weather Report: {report[0]['description']}")
 
-    fourletterphat.clear()
-    fourletterphat.print_str(temperature)
-    fourletterphat.set_decimal(1, 1)
-    fourletterphat.show()
+      # Get temp forom vcgencmd in the format: "temp=XY.Z'C"
+      # and reduce to the format "XYZC" for display
+      #temperature = Popen(["vcgencmd", "measure_temp"], stdout=PIPE)
+      #temperature = temperature.stdout.read().decode('utf-8')
 
-    time.sleep(1)
+      # Rempve "temp=" and the "." and "'" chars
+      #temperature = temperature[5:].replace(".", "").replace("'", "").strip()
 
+      fourletterphat.clear()
+      tempstring = "{:.0f}F".format(temperature)
+      print("drum roll please")
+      print(tempstring)
+      fourletterphat.print_str(tempstring)
+      #fourletterphat.set_decimal(1, 1)
+      fourletterphat.show()
+
+      time.sleep(5)
+   else:
+      # showing the error message
+      print("Error in the HTTP request")
