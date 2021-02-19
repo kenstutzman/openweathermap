@@ -4,6 +4,10 @@
 
 # importing requests and json
 import requests, json
+import time
+import fourletterphat
+from subprocess import Popen, PIPE
+
 # base URL
 BASE_URL = "https://api.openweathermap.org/data/2.5/weather?"
 #CITY = "Goddard,KS,US"
@@ -52,3 +56,20 @@ if response.status_code == 200:
 else:
    # showing the error message
    print("Error in the HTTP request")
+
+while True:
+    # Get temp forom vcgencmd in the format: "temp=XY.Z'C"
+    # and reduce to the format "XYZC" for display
+    temperature = Popen(["vcgencmd", "measure_temp"], stdout=PIPE)
+    temperature = temperature.stdout.read().decode('utf-8')
+
+    # Rempve "temp=" and the "." and "'" chars
+    temperature = temperature[5:].replace(".", "").replace("'", "").strip()
+
+    fourletterphat.clear()
+    fourletterphat.print_str(temperature)
+    fourletterphat.set_decimal(1, 1)
+    fourletterphat.show()
+
+    time.sleep(1)
+
