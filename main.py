@@ -11,9 +11,9 @@ from subprocess import Popen, PIPE
 # base URL
 BASE_URL = "https://api.openweathermap.org/data/2.5/weather?"
 #CITY = "Goddard,KS,US"
-CITY = "Windsor,CO,US"
+#CITY = "Windsor,CO,US"
+CITY = "Fort&20Collins,CO,US"
 UNITS = "imperial"
-API_KEY = "97e14767ed954aae605b1c74a0f82536"
 # upadting the URL
 URL = BASE_URL + "q=" + CITY + "&units=" + UNITS + "&appid=" + API_KEY
 # HTTP request
@@ -50,12 +50,16 @@ def main():
             print(f"Wind Degrees: {winddeg}")
             if winddeg < 45 or winddeg >= 315:
                 print("north")
+                windir = "N"
             if winddeg >= 45 and winddeg < 135:
                 print("east")
+                windir = "E"
             if winddeg >= 135 and winddeg < 225:
                 print("south")
+                windir = "S"
             if winddeg >= 225 and winddeg < 315:
                 print("west")
+                windir = "W"
             print(f"Weather Report: {report[0]['description']}")
       
             # Get temp forom vcgencmd in the format: "temp=XY.Z'C"
@@ -73,7 +77,15 @@ def main():
             #fourletterphat.set_decimal(1, 1)
             fourletterphat.show()
  
-            time.sleep(5)
+            time.sleep(2)
+            
+            fourletterphat.clear()
+            tempstring = "{:.0f}{}".format(windspeed,windir)
+            print(tempstring)
+            fourletterphat.print_str(tempstring)
+            fourletterphat.show()
+            
+            time.sleep(2)
         else:
             # showing the error message
             print("Error in the HTTP request")
