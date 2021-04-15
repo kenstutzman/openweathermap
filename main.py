@@ -7,6 +7,7 @@ import requests, json
 import time
 import fourletterphat
 from subprocess import Popen, PIPE
+import datetime
 
 # base URL
 BASE_URL = "https://api.openweathermap.org/data/2.5/weather?"
@@ -16,79 +17,68 @@ CITY = "Fort&20Collins,CO,US"
 UNITS = "imperial"
 # upadting the URL
 URL = BASE_URL + "q=" + CITY + "&units=" + UNITS + "&appid=" + API_KEY
-# HTTP request
 
 def main():
-
+    temperature = 0
+    winspeed = 0
+    windir = " "
+    lastmin = 99
     while True:
-        response = requests.get(URL)
-        # checking the status code of the request
-        if response.status_code == 200:
-            # getting data in the json format
-            data = response.json()
-            # print(data) # print the whole json object
-            # getting the main dict block
-            main = data['main']
-            # getting temperature
-            temperature = main['temp']
-            # getting the humidity
-            humidity = main['humidity']
-            # getting the pressure
-            pressure = main['pressure']
-            # wind speed
-            wind = data['wind']
-            windspeed = wind['speed']
-            winddeg = wind['deg']
-   
-            # weather report
-            report = data['weather']
-            print(f"{CITY:-^30}")
-            print(f"Temperature: {temperature}F")
-            print(f"Humidity: {humidity}")
-            print(f"Pressure: {pressure}")
-            print(f"Wind Speed: {windspeed}")
-            print(f"Wind Degrees: {winddeg}")
-            if winddeg < 45 or winddeg >= 315:
-                print("north")
-                windir = "N"
-            if winddeg >= 45 and winddeg < 135:
-                print("east")
-                windir = "E"
-            if winddeg >= 135 and winddeg < 225:
-                print("south")
-                windir = "S"
-            if winddeg >= 225 and winddeg < 315:
-                print("west")
-                windir = "W"
-            print(f"Weather Report: {report[0]['description']}")
-      
-            # Get temp forom vcgencmd in the format: "temp=XY.Z'C"
-            # and reduce to the format "XYZC" for display
-            #temperature = Popen(["vcgencmd", "measure_temp"], stdout=PIPE)
-            #temperature = temperature.stdout.read().decode('utf-8')
-      
-            # Rempve "temp=" and the "." and "'" chars
-            #temperature = temperature[5:].replace(".", "").replace("'", "").strip()
-            fourletterphat.clear()
-            tempstring = "{:.0f}F".format(temperature)
-            print("drum roll please")
-            print(tempstring)
-            fourletterphat.print_str(tempstring)
-            #fourletterphat.set_decimal(1, 1)
-            fourletterphat.show()
+        now = datetime.datetime.now()
+        if now.minute != lastmin :  # if new minute
+            lastmin = now.minute
+            print(now.minute,lastmin)
+            response = requests.get(URL)  #ask for weather from openweathermap 
+            if response.status_code == 200:
+                data = response.json()
+                # print(data) 
+                main = data['main']
+                temperature = main['temp']
+                humidity = main['humidity']
+                pressure = main['pressure']
+                wind = data['wind']
+                windspeed = wind['speed']
+                winddeg = wind['deg']
+       
+                report = data['weather']
+                print(f"{CITY:-^30}")
+                print(f"Temperature: {temperature}F")
+                print(f"Humidity: {humidity}")
+                print(f"Pressure: {pressure}")
+                print(f"Wind Speed: {windspeed}")
+                print(f"Wind Degrees: {winddeg}")
+                if winddeg < 45 or winddeg >= 315:
+                    print("north")
+                    windir = "N"
+                if winddeg >= 45 and winddeg < 135:
+                    print("east")
+                    windir = "E"
+                if winddeg >= 135 and winddeg < 225:
+                    print("south")
+                    windir = "S"
+                if winddeg >= 225 and winddeg < 315:
+                    print("west")
+                    windir = "W"
+                print(f"Weather Report: {report[0]['description']}")
+            else:
+                print("Error in the HTTP request")
+          
+        fourletterphat.clear()
+        tempstring = "{:.0f}F".format(temperature)
+        print(now.second,tempstring)
+        fourletterphat.print_str(tempstring)
+        #fourletterphat.set_decimal(1, 1)
+        fourletterphat.show()
  
-            time.sleep(2)
+        time.sleep(4)
             
-            fourletterphat.clear()
-            tempstring = "{:.0f}{}".format(windspeed,windir)
-            print(tempstring)
-            fourletterphat.print_str(tempstring)
-            fourletterphat.show()
+        fourletterphat.clear()
+        tempstring = "{:.0f}{}".format(windspeed,windir)
+        print(now.second,tempstring)
+        fourletterphat.print_str(tempstring)
+        fourletterphat.show()
             
-            time.sleep(2)
-        else:
-            # showing the error message
-            print("Error in the HTTP request")
+        time.sleep(4)
 
 if __name__ == "__main__":
     main()
